@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: node-task-ref
+spec:
+  steps:
+    - name: analyze-node
+      image: pranavbhatia/node-sonarqube:0.1
+      command: ["/bin/sh"]
+      args:
+        - -c
+        - | 
+            sleep 2m
+            cd /app
+            echo "EXTERNAL_URL=http://sonarqube-service.tekton-pipelines.svc.cluster.local:9004\nUSERNAME=admin\nPASSWORD=admin" > .env
+            cat .env
+            npm run sonar
+  

@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: sonarqube-task-ref
+spec:
+  params:
+    - name: ibmcloud-details
+      description: name of secret containing ibmcloud creds
+      default: ibmcloud-details
+  steps:
+    - name: setup-sonarqube
+      image: pranavbhatia/dind-ibmcloud:0.2
+      command: ["/bin/sh"]
+      envFrom:
+        - secretRef:
+            name: $(params.ibmcloud-details)
+      args:
+        - -c
+        - | 
+            cd ~
+            ibmcloud plugin install container-service
+            ibmcloud plugin list
+            ibmcloud login --apikey $IBMCLOUD_API_KEY -q -r us-east
+            sleep 0.5m
+            ibmcloud ks cluster config --cluster $IBMCLOUD_CLUSTER_ID
+            apk add git
+            git clone https://github.com/prav10194/test-tekton.git
+            cd test-tekton
+            kubectl delete service sonarqube-service -n tekton-pipelines && kubectl delete pod sonarqube-pod -n tekton-pipelines
+            kubectl create -f sonarqube-deployment.yaml -n tekton-pipelines
+            kubectl get pods -n tekton-pipelines
+  

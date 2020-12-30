@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: sonarqube-pipeline-ref
+spec:
+  tasks:
+  - name: sonarqube-task
+    taskRef:
+      name: sonarqube-task-ref
+  - name: node-task
+    taskRef:
+      name: node-task-ref
